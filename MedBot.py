@@ -1,6 +1,6 @@
 import logging
 
-from telegram.ext import Updater, CommandHandler, RegexHandler
+from telegram.ext import Updater, CommandHandler, RegexHandler, ConversationHandler
 
 from mb_handlers import *
 import mb_settings as mbs
@@ -20,10 +20,18 @@ def main():
 
     mbot = Updater(mbs.MedBot_key, request_kwargs = PROXY)
     logging.info('Бот запустился')
-
     dp = mbot.dispatcher
 
+    autorization = ConversationHandler(
+        entry_points = [RegexHandler('^(Авторизироваться)$', user_email)], #Вход в диалог
+        states = {
+            '':[]
+        },#Состояние
+        fallbacks = []#Обработка ошибок
+    )
+
     dp.add_handler(CommandHandler('start', greet_user))
+    dp.add_handler(autorization)
     
     mbot.start_polling() # начни ходить на платформу telegram и проверять наличие сообщений
     mbot.idle() #будет выполнять пока принудитлеьноне остановим
