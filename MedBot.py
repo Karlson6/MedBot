@@ -1,9 +1,10 @@
 import logging
 
-from telegram.ext import Updater, CommandHandler, RegexHandler, ConversationHandler
+from telegram.ext import Updater, CommandHandler, ConversationHandler, MessageHandler, RegexHandler, Filters
 
 from mb_handlers import *
 import mb_settings as mbs
+
 
 
 PROXY = mbs.PROXY
@@ -25,7 +26,8 @@ def main():
     autorization = ConversationHandler(
         entry_points = [RegexHandler('^(Авторизироваться)$', user_email)], #Вход в диалог
         states = {
-            '':[]
+            'user_email':[MessageHandler(Filters.text, user_email)],
+            'user_get_email':[MessageHandler(Filters.text, user_get_email)]
         },#Состояние
         fallbacks = []#Обработка ошибок
     )

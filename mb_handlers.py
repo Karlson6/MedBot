@@ -1,3 +1,5 @@
+import random
+
 from telegram import ReplyKeyboardMarkup
 from telegram.ext import Updater
 
@@ -25,6 +27,38 @@ def aut_start(bot, update, user_chat):
                               reply_markup = ReplyKeyboardMarkup(aut_keyboard, 
                               one_time_keyboard=True, 
                               resize_keyboard=True))
+    return 'user_email'
+    
 
+#Запрашиваем email у пользователя
 def user_email(bot, update):
-    print(1)
+    update.message.reply_text('Введите email')
+    return 'user_get_email'
+
+
+#Получаем email от пользователя
+def user_get_email(bot, update):
+    user_email = update.message.text
+    if '@' in user_email:
+        print(user_email)
+    else:
+        update.message.reply_text('Введите email')
+        return 'user_get_email'
+
+
+#Отправляем на email код авторизации
+def send_email(bot, update):
+    port = 465
+    smtp_server = 'smtp.gmail.com'
+    sender_email = mbs.email
+    receiver_email = 'lena.korzinkina@mail.ru'
+    password = mbs.email_password
+    email_code = random.randint(1111,9999)
+    massage = f'Код авторизации: {email_code}'
+    massage = massage.encode('utf-8')
+    context = ssl.create_default_context()
+    with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
+        server.login(sender_email, password)
+        server.sendmail(sender_email, receiver_email, massage)
+
+    
