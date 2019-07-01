@@ -9,13 +9,17 @@ import mb_settings as mbs
 
 PROXY = mbs.PROXY
 
-#ЗАЧАТКИ ЛОГИРОВАНИЯ!!!! СЮДА НУЖНО ВЕРНУТЬСЯ
+#TODOЗАЧАТКИ ЛОГИРОВАНИЯ!!!! СЮДА НУЖНО ВЕРНУТЬСЯ
 #____________________________________________
 
 logging.basicConfig(filename = 'mbot.log',
                     format = ('%(name)s - %(levelname)s - %(message)s'),
                     level = logging.INFO)
 
+def cancel(update, context):
+    user = update.message.from_user
+    update.message.reply_text('Bye! I hope we can talk again some day.', reply_markup=ReplyKeyboardRemove())
+    return ConversationHandler.END
 
 def main():
 
@@ -26,10 +30,11 @@ def main():
     autorization = ConversationHandler(
         entry_points = [RegexHandler('^(Авторизироваться)$', user_email)], #Вход в диалог
         states = {
-            'user_email':[MessageHandler(Filters.text, user_email)],
-            'user_get_email':[MessageHandler(Filters.text, user_get_email)]
+            'user_email':[MessageHandler(Filters.text, user_email, pass_user_data=True)],
+            'user_get_email':[MessageHandler(Filters.text, user_get_email, pass_user_data=True)],
+            'test_code':[MessageHandler(Filters.text, test_code, pass_user_data=True)]
         },#Состояние
-        fallbacks = []#Обработка ошибок
+        fallbacks = [CommandHandler('cancel', cancel)]#Обработка ошибок
     )
 
     dp.add_handler(CommandHandler('start', greet_user))

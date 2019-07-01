@@ -2,3 +2,4 @@ mb_settings.py
 __pycache__/
 env/
 mbot.log
+.vscode/
