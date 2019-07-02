@@ -9,7 +9,7 @@ import mb_settings as mbs
 
 PROXY = mbs.PROXY
 
-#TODOЗАЧАТКИ ЛОГИРОВАНИЯ!!!! СЮДА НУЖНО ВЕРНУТЬСЯ
+#TODO ЗАЧАТКИ ЛОГИРОВАНИЯ!!!! СЮДА НУЖНО ВЕРНУТЬСЯ
 #____________________________________________
 
 logging.basicConfig(filename = 'mbot.log',
@@ -32,6 +32,7 @@ def main():
         states = {
             'user_email':[MessageHandler(Filters.text, user_email, pass_user_data=True)],
             'user_get_email':[MessageHandler(Filters.text, user_get_email, pass_user_data=True)],
+            'user_code':[MessageHandler(Filters.text, user_code, pass_user_data=True)],
             'test_code':[MessageHandler(Filters.text, test_code, pass_user_data=True)]
         },#Состояние
         fallbacks = [CommandHandler('cancel', cancel)]#Обработка ошибок
