@@ -28,7 +28,7 @@ def main():
     dp = mbot.dispatcher
 
     autorization = ConversationHandler(
-        entry_points = [RegexHandler('^(Авторизироваться)$', user_email)], #Вход в диалог
+        entry_points = [RegexHandler('^(Авторизироваться)$', user_email, pass_user_data=True)], #Вход в диалог
         states = {
             'user_email':[MessageHandler(Filters.text, user_email, pass_user_data=True)],
             'user_get_email':[MessageHandler(Filters.text, user_get_email, pass_user_data=True)],
@@ -38,8 +38,9 @@ def main():
         fallbacks = [CommandHandler('cancel', cancel)]#Обработка ошибок
     )
 
-    dp.add_handler(CommandHandler('start', greet_user))
+    dp.add_handler(CommandHandler('start', greet_user, pass_user_data=True))
     dp.add_handler(autorization)
+    dp.add_handler(CommandHandler('menu', user_menu, pass_user_data=True))
     
     mbot.start_polling() # начни ходить на платформу telegram и проверять наличие сообщений
     mbot.idle() #будет выполнять пока принудитлеьноне остановим
