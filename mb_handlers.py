@@ -22,6 +22,16 @@ query = dbp.User.select().where(dbp.User.id_status >= 3)
 for user in query:
     bot_user.add(int(user.telegram_chat_id))
 
+#Статус пользователя в бд
+# def user_status(user_data):
+#     print(user_data['user_chat'])    
+#     st_set = set()
+#     user_st = dbp.User.select().where(dbp.User.telegram_chat_id == user_data['user_chat'])
+#     for st in user_st:
+#         st_set.add(st.id_status)
+#     print(status_set)
+    # user_status = status_set[0]
+    # return user_status
 
 #Приветствуем пользователя, проверяем автоматизирован ли он
 def greet_user (bot, update, user_data):
@@ -61,14 +71,14 @@ def user_get_email(bot, update, user_data):
     user_email = update.message.text
     if '@' in user_email:
         user_data['user_email']=user_email
-        print(user_data['user_email'])
-        # dbp.User.id_status.update(id_status = 1).where(telegram_chat_id == user_data['user_chat'])
+        db_chat_id = dbp.User.telegram_chat_id
+        # Обновляем id_status у пользователя в БД
+        query = dbp.User.update(id_status = 1, email = user_email).where(dbp.User.telegram_chat_id == user_data['user_chat'])
+        query.execute()
         send_code(bot=bot, update=update, user_data=user_data)
         # return 'send_code'
     else:
         update.message.reply_text('Некорректный email. Введите email')
-        print(3)
-        print(user_data)
         return 'user_get_email'
         
 
@@ -78,7 +88,7 @@ def send_code (bot, update, user_data):
     port = 465
     smtp_server = 'smtp.gmail.com'
     sender_email = mbs.email
-    receiver_email = 'lena.korzinkina@mail.ru'
+    receiver_email = user_data['user_email']
     password = mbs.email_password
     email_code = random.randint(1111,9999)
     massage = f'Код авторизации: {email_code}'
@@ -88,26 +98,32 @@ def send_code (bot, update, user_data):
     with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
         server.login(sender_email, password)
         server.sendmail(sender_email, receiver_email, massage)
-    update.message.reply_text('Введите код авторизации')
-    print('я все сделал в send_code')
-    # user_code(bot=bot, update=update, user_data=user_data, email_code= email_code)
-    return 'user_code'
+        status = 1
+    print(status)
+    print('Введите код авторизации')
+    # update.message.reply_text('Введите код авторизации')
+    if status == 1:
+        print(user_data)
+        user_code(bot=bot, update=update, user_data=user_data)
+
     
 
-
-def user_code(bot, update, user_data, email_code): 
-    user_data = update.message.text
-    user_data['user_code'] = user_data
-    print(user_data)
-    print('ага, я это сделал')
-    return ConversationHandler.END
-    test_code(bot=bot, update=update, user_data=user_data, email_code=email_code)
+def user_code(bot, update, user_data):
+    query = dbp.User.update(id_status = 2).where(dbp.User.telegram_chat_id == user_data['user_chat'])
+    query.execute()
+    status = 2
+    if status == 2:
+        user_code = update.message.text
+        user_data['user_code'] = user_code
+        print(user_data)
+        print('ага, я это сделал')
+        test_code(bot=bot, update=update, user_data=user_data)
     # print(user_data)
     # return 'user_code'
 
 
 #Проверяем соответствие присланного на почту кода введенного пользователем
-def test_code(bot, update, user_data, email_code):
+def test_code(bot, update, user_data):
     print(user_data)
 
 #Пользовательское меню

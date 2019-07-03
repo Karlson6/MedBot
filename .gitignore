@@ -3,3 +3,4 @@ __pycache__/
 env/
 mbot.log
 .vscode/
+.ipynb_checkpoints/
