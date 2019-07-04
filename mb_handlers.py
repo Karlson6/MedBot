@@ -33,11 +33,22 @@ for user in query:
     # user_status = status_set[0]
     # return user_status
 
+#Определяем id_chat пользователя
+def u_chat(bot, update, user_data):
+    user_chat = int(update.message.chat.id)
+    user_data['user_chat'] = user_chat
+    user_name = update.message.chat.first_name
+    user_data['user_name'] = user_name
+    return user_data
+
 #Приветствуем пользователя, проверяем автоматизирован ли он
 def greet_user (bot, update, user_data):
-    user_chat = int(update.message.chat.id)
-    user_name = update.message.chat.first_name
-    user_data['user_chat'] = user_chat
+    # user_chat = int(update.message.chat.id)
+    # user_name = update.message.chat.first_name
+    # user_data['user_chat'] = user_chat
+    u_chat(bot=bot, update=update, user_data=user_data)
+    user_chat = user_data['user_chat']
+    user_name = user_data['user_name']
     update.message.reply_text(f'Привет, {user_name}')
     if user_chat in bot_user:
         user_menu(bot=bot, update=update, user_data=user_data)
@@ -91,14 +102,13 @@ def send_code (bot, update, user_data):
     receiver_email = user_data['user_email']
     password = mbs.email_password
     email_code = random.randint(1111,9999)
-    massage = f'Код авторизации: {email_code}'
-    massage = massage.encode('utf-8')
+    message = f'Код авторизации: {email_code}'
+    message = message.encode('utf-8')
     context = ssl.create_default_context()
     print(4)
     with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
         server.login(sender_email, password)
-        server.sendmail(sender_email, receiver_email, massage)
-        status = 1
+        server.sendmail(sender_email, receiver_email, message)
     print(status)
     print('Введите код авторизации')
     # update.message.reply_text('Введите код авторизации')

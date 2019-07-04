@@ -2,6 +2,7 @@ import logging
 
 from telegram.ext import Updater, CommandHandler, ConversationHandler, MessageHandler, RegexHandler, Filters
 
+from mb_chart import *
 from mb_handlers import *
 import mb_settings as mbs
 
@@ -16,10 +17,6 @@ logging.basicConfig(filename = 'mbot.log',
                     format = ('%(name)s - %(levelname)s - %(message)s'),
                     level = logging.INFO)
 
-def cancel(update, context):
-    user = update.message.from_user
-    update.message.reply_text('Bye! I hope we can talk again some day.', reply_markup=ReplyKeyboardRemove())
-    return ConversationHandler.END
 
 def main():
 
@@ -35,12 +32,13 @@ def main():
             'user_code':[MessageHandler(Filters.text, user_code, pass_user_data=True)],
             'test_code':[MessageHandler(Filters.text, test_code, pass_user_data=True)]
         },#Состояние
-        fallbacks = [CommandHandler('cancel', cancel)]#Обработка ошибок
+        fallbacks = [] #TODO Обработка ошибок
     )
 
     dp.add_handler(CommandHandler('start', greet_user, pass_user_data=True))
     dp.add_handler(autorization)
     dp.add_handler(CommandHandler('menu', user_menu, pass_user_data=True))
+    dp.add_handler(RegexHandler('^(Получить график)$', mt_chart, pass_user_data=True))
     
     mbot.start_polling() # начни ходить на платформу telegram и проверять наличие сообщений
     mbot.idle() #будет выполнять пока принудитлеьноне остановим
