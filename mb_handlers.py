@@ -144,6 +144,15 @@ def user_menu (bot, update, user_data):
                               one_time_keyboard=True, 
                               resize_keyboard=True))
 
+def user_mt_start(bot, update, user_data):
+    update.message.reply_text('Введите дату анализа:')
+    return 'date'
+
+def user_mt_date(bot, update, user_data):
+    user_data['mt_date'] = update.message.text
+    print(user_data)
+
+
 
 
 

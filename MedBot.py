@@ -24,19 +24,28 @@ def main():
     logging.info('Бот запустился')
     dp = mbot.dispatcher
 
-    autorization = ConversationHandler(
-        entry_points = [RegexHandler('^(Авторизироваться)$', user_email, pass_user_data=True)], #Вход в диалог
-        states = {
+    autorization=ConversationHandler(
+        entry_points=[RegexHandler('^(Авторизироваться)$', user_email, pass_user_data=True)], #Вход в диалог
+        states={
             'user_email':[MessageHandler(Filters.text, user_email, pass_user_data=True)],
             'user_get_email':[MessageHandler(Filters.text, user_get_email, pass_user_data=True)],
             'user_code':[MessageHandler(Filters.text, user_code, pass_user_data=True)],
             'test_code':[MessageHandler(Filters.text, test_code, pass_user_data=True)]
         },#Состояние
-        fallbacks = [] #TODO Обработка ошибок
+        fallbacks=[] #TODO Обработка ошибок
+    )
+
+    user_medtest = ConversationHandler(
+        entry_points=[RegexHandler('^(Внести результат)$', user_mt_start, pass_user_data=True)],
+        states={
+            'date':[MessageHandler(Filters.text, user_mt_date, pass_user_data=True)]
+        },
+        fallbacks=[]
     )
 
     dp.add_handler(CommandHandler('start', greet_user, pass_user_data=True))
     dp.add_handler(autorization)
+    dp.add_handler(user_medtest)
     dp.add_handler(CommandHandler('menu', user_menu, pass_user_data=True))
     dp.add_handler(RegexHandler('^(Получить график)$', mt_chart, pass_user_data=True))
     
