@@ -1,5 +1,7 @@
+import datetime
 from peewee import *#Для работы с бд
 import random
+import re #Регулярные выражения
 import smtplib, ssl #для работы с почтой
 import sqlite3
 
@@ -14,7 +16,7 @@ import mb_settings as mbs
 bot_not_user = set()
 query_nu = dbp.User.select().where(dbp.User.id_status < 3)
 for not_user in query_nu:
-    bot_not_user.add(int(not_user.telegram_chat_id))
+    bot_not_user.add(not_user.telegram_chat_id)
 
 #Авторизированные пользователи
 bot_user = set()
@@ -40,6 +42,8 @@ def u_chat(bot, update, user_data):
     user_name = update.message.chat.first_name
     user_data['user_name'] = user_name
     return user_data
+
+
 
 #Приветствуем пользователя, проверяем автоматизирован ли он
 def greet_user (bot, update, user_data):
@@ -137,20 +141,39 @@ def test_code(bot, update, user_data):
     print(user_data)
 
 #Пользовательское меню
-def user_menu (bot, update, user_data):
+def user_menu(bot, update, user_data):
     mt_keyboard = [['Внести результат','Получить график']]
     update.message.reply_text('Выберите пункт меню', 
                               reply_markup = ReplyKeyboardMarkup(mt_keyboard, 
                               one_time_keyboard=True, 
-                              resize_keyboard=True))
+                              resize_keyboard=True))   
 
+#Просим пользователя ввести дату анализа
 def user_mt_start(bot, update, user_data):
-    update.message.reply_text('Введите дату анализа:')
-    return 'date'
+    update.message.reply_text('Введите дату и время анализа в формате "дд.мм.гггг_чч.мм"(например: 05.07.2019_10.51):')
+    return 'value'
 
-def user_mt_date(bot, update, user_data):
+#Просим пользователя ввести значение анализа
+def user_mt_value(bot, update, user_data):
     user_data['mt_date'] = update.message.text
-    print(user_data)
+    update.message.reply_text('Введите значение анализа (например: 51,01):')
+    return 'user_mt'
+
+#Сохраняем результат в бд
+def user_mt(bot, update, user_data):
+    user_data['mt_value'] = update.message.text
+    u_chat(bot=bot, update=update, user_data=user_data)
+
+    max_test_id = dbp.UserMedTest.select(fn.MAX(dbp.UserMedTest.id)).scalar()
+    user_id = dbp.User.get(dbp.User.telegram_chat_id==user_data['user_chat']) #Возвращаем из бд id пользователя  
+    dbp.UserMedTest.create(id=max_test_id+1, 
+                           id_med_test=1, 
+                           id_user=user_id, 
+                           med_test_date=user_data['mt_date'], 
+                           med_test_value=user_data['mt_value'])
+
+    return ConversationHandler.END
+
 
 
 

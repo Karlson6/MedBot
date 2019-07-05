@@ -38,7 +38,8 @@ def main():
     user_medtest = ConversationHandler(
         entry_points=[RegexHandler('^(Внести результат)$', user_mt_start, pass_user_data=True)],
         states={
-            'date':[MessageHandler(Filters.text, user_mt_date, pass_user_data=True)]
+            'value':[MessageHandler(Filters.text, user_mt_value, pass_user_data=True)],
+            'user_mt':[MessageHandler(Filters.text, user_mt, pass_user_data=True)]
         },
         fallbacks=[]
     )
