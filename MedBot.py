@@ -1,3 +1,4 @@
+
 import logging
 
 from telegram.ext import Updater, CommandHandler, ConversationHandler, MessageHandler, RegexHandler, Filters
@@ -10,7 +11,7 @@ import mb_settings as mbs
 
 PROXY = mbs.PROXY
 
-#TODO ЗАЧАТКИ ЛОГИРОВАНИЯ!!!! СЮДА НУЖНО ВЕРНУТЬСЯ
+#TODO add logging
 #____________________________________________
 
 logging.basicConfig(filename = 'mbot.log',
@@ -49,6 +50,7 @@ def main():
     dp.add_handler(user_medtest)
     dp.add_handler(CommandHandler('menu', user_menu, pass_user_data=True))
     dp.add_handler(RegexHandler('^(Получить график)$', mt_chart, pass_user_data=True))
+    dp.add_handler(MessageHandler(Filters.document, document_handler))
     
     mbot.start_polling() # начни ходить на платформу telegram и проверять наличие сообщений
     mbot.idle() #будет выполнять пока принудитлеьноне остановим

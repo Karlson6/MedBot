@@ -1,16 +1,18 @@
 import datetime
-from peewee import *#Для работы с бд
+import os
 import random
-import re #Регулярные выражения
-import smtplib, ssl #для работы с почтой
+import re  # Регулярные выражения
+import smtplib  # для работы с почтой
 import sqlite3
+import ssl
 
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
-from telegram.ext import Updater, ConversationHandler
+from telegram.ext import ConversationHandler, Updater
 
 import db_peewee as dbp
+import filetype
 import mb_settings as mbs
-
+from peewee import *  # Для работы с бд
 
 #Стартовавшие бота пользователи
 bot_not_user = set()
@@ -142,7 +144,7 @@ def test_code(bot, update, user_data):
 
 #Пользовательское меню
 def user_menu(bot, update, user_data):
-    mt_keyboard = [['Внести результат','Получить график']]
+    mt_keyboard = [['Внести результат','Отправить PDF', 'Получить график']]
     update.message.reply_text('Выберите пункт меню', 
                               reply_markup = ReplyKeyboardMarkup(mt_keyboard, 
                               one_time_keyboard=True, 
@@ -159,6 +161,30 @@ def user_mt_value(bot, update, user_data):
     update.message.reply_text('Введите значение анализа (например: 51,01):')
     return 'user_mt'
 
+# Просим прислать PDF
+
+def document_handler(bot, update):
+    file = bot.getFile(update.message.document.file_id)
+    print ("file_id: " + str(update.message.document.file_id))
+
+    # генерируем имя для сохраняемого файла (имя основывается на chat id и текущем времени)
+    file_name = f'upcoming_data/{update.message.chat.id}_{datetime.datetime.now()}.pdf'
+    file.download(file_name)
+
+    # проверяем файл на PDF
+    type_file = filetype.guess(file_name)
+    if type_file.extension == 'pdf':
+        update.message.reply_text('файл сохранен')
+    else:
+        update.message.reply_text('формат не распознан, пришлите PDF')
+        os.remove(file_name)
+        return
+
+
+    
+   
+
+
 #Сохраняем результат в бд
 def user_mt(bot, update, user_data):
     user_data['mt_value'] = update.message.text
@@ -173,13 +199,3 @@ def user_mt(bot, update, user_data):
                            med_test_value=user_data['mt_value'])
 
     return ConversationHandler.END
-
-
-
-
-
-
-    
-
-    
-    
